@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model parking_in {
+  id         Int      @id @default(autoincrement())
+  platNomor  String?  @db.VarChar(10)
+  waktuMasuk DateTime
+}
+
+model parking_out {
+  id          Int      @id @default(autoincrement())
+  platNomor   String   @db.VarChar(10)
+  waktuMasuk  DateTime
+  waktuKeluar DateTime
+  totalTime   Int
+  totalPrice  Int
+}
+
+model payment {
+  id            Int    @id @default(autoincrement())
+  platNomor     String @db.VarChar(10)
+  totalPrice    Int
+  transactionId String @db.VarChar(100)
+  status        String @db.VarChar(20)
+}
