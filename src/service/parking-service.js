@@ -54,7 +54,7 @@ const parkOut = async (data) => {
     },
   });
 
-  // Optionally, delete from parking_in table
+  // Delete from parking_in table
   await prisma.parking_in.delete({
     where: { id: parkingIn.id },
   });

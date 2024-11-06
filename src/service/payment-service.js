@@ -43,7 +43,7 @@ const createPayment = async (data) => {
     const qrCodeUrl = response.data.actions.find(action => action.name === 'generate-qr-code').url;
     logger.info(`Payment created for ${data.platNomor}, QR Code URL: ${qrCodeUrl}`);
 
-    // Optionally, you can save the payment details in the database
+    // Save the payment details in the database
     await prisma.payment.create({
       data: {
         platNomor: data.platNomor,
@@ -65,7 +65,7 @@ const createPayment = async (data) => {
 const updatePaymentStatus = async (orderId, transactionStatus) => {
   try {
     const payment = await prisma.payment.findFirst({
-      where: { transactionId: orderId }, // Ensure this matches your database schema
+      where: { transactionId: orderId },
     });
 
     if (!payment) {
