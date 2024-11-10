@@ -1,17 +1,21 @@
-// new configuration route (not using this yet)
+// src/route/api.js
 import express from 'express';
 import parkingController from '../controller/parking-controller.js';
 import paymentController from '../controller/payment-controller.js';
 import webhookController from '../controller/webhook-controller.js';
 
-const router = new express.Router();
+const iotRouter = new express.Router();
 
-// Praking router
-router.post('/api/parkir/masuk', parkingController.parkIn);
-router.post('/api/parkir/keluar', parkingController.parkOut);
+// Praking iotRouter
+iotRouter.post('/api/parkir/masuk', parkingController.parkIn);
+iotRouter.post('/api/parkir/keluar', parkingController.parkOut);
 
-// Payment router
-router.post('/api/payment/', paymentController.createPayment);
+// Payment iotRouter
+iotRouter.post('/api/payment/', paymentController.createPayment);
 
-// Webhook router
-router.post('/api/webhook/midtrans', webhookController.handleWebhook);
+// Webhook iotRouter
+iotRouter.post('/api/webhook/midtrans', webhookController.handleWebhook);
+
+export {
+  iotRouter
+}
