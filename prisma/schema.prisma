@@ -17,6 +17,19 @@ model parking_in {
   id         Int      @id @default(autoincrement())
   platNomor  String?  @db.VarChar(10)
   waktuMasuk DateTime
+  wilayah    String?  @db.VarChar(20)
+  kota_provinsi String? @db.VarChar(50)
+  jenisKendaraan String? @db.VarChar(20)
+  imageLink      String? @db.VarChar(256)
+}
+
+
+model payment {
+  id            Int    @id @default(autoincrement())
+  totalPrice    Int
+  transactionId String @db.VarChar(100)
+  status        String @db.VarChar(20)
+  parking_outs   parking_out[] 
 }
 
 model parking_out {
@@ -25,13 +38,16 @@ model parking_out {
   waktuMasuk  DateTime
   waktuKeluar DateTime
   totalTime   Int
-  totalPrice  Int
+  wilayah    String  @db.VarChar(20)
+  kota_provinsi String @db.VarChar(50)
+  jenisKendaraan String @db.VarChar(20)
+  imageLink      String @db.VarChar(256)
+  paymentId      Int 
+  payment       payment @relation(fields: [paymentId], references: [id])
 }
 
-model payment {
+model data_excel{
   id            Int    @id @default(autoincrement())
-  platNomor     String @db.VarChar(10)
-  totalPrice    Int
-  transactionId String @db.VarChar(100)
-  status        String @db.VarChar(20)
+  fileName      String @db.VarChar(40)
+  excelLink     String @db.VarChar(256)
 }
