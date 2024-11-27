@@ -2,11 +2,11 @@
 import Joi from 'joi';
 
 const parkInValidation = Joi.object({
-  platNomor: Joi.string(),
+  platNomor: Joi.string().allow(null).allow('').optional(),
 });
 
 const parkOutValidation = Joi.object({
-  platNomor: Joi.string().required(),
+  platNomor: Joi.string().allow(null).allow('').optional(),
 });
 
 export { parkInValidation, parkOutValidation };

@@ -21,7 +21,7 @@ model parking_in {
 
 model parking_out {
   id          Int      @id @default(autoincrement())
-  platNomor   String   @db.VarChar(10)
+  platNomor   String?  @db.VarChar(10)
   waktuMasuk  DateTime
   waktuKeluar DateTime
   totalTime   Int

@@ -6,11 +6,9 @@ import cors from 'cors';
 
 const web = express();
 web.use(express.json());
-web.use(cors({ origin: 'http://127.0.0.1:3001' }));
+web.use(cors());
 
 web.use(iotRouter);
-
-
 web.use(errorMiddleware);
 
 export default web;

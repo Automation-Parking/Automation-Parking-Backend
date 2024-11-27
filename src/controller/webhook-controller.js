@@ -4,6 +4,18 @@ import { logger } from '../application/logging.js';
 import { sendToClients } from '../main.js';
 import axios from 'axios';
 
+// Function to call the IoT API to open the gate
+const openGate = async () => {
+  try {
+    // Replace with IoT server's URL and endpoint
+    const iotServerUrl = 'http://192.168.29.138/gerbangKeluar'; // Example URL
+    const response = await axios.get(iotServerUrl);
+    logger.info(`Gate opened:`, response.data);
+  } catch (error) {
+    logger.error(`Failed to open gate: ${error.message}`);
+  }
+};
+
 const handleWebhook = async (req, res, next) => {
   try {
     const notification = req.body;
@@ -33,17 +45,6 @@ const handleWebhook = async (req, res, next) => {
   }
 };
 
-// Function to call the IoT API to open the gate
-const openGate = async () => {
-  try {
-    // Replace with IoT server's URL and endpoint
-    const iotServerUrl = 'http://iot-server.local/api/gerbangMasuk'; // Example URL
-    const response = await axios.get(iotServerUrl);
-    logger.info(`Gate opened:`, response.data);
-  } catch (error) {
-    logger.error(`Failed to open gate: ${error.message}`);
-  }
-};
 
 export default {
   handleWebhook,
