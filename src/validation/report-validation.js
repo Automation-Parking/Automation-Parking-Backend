@@ -10,11 +10,10 @@ const createReportValidation = Joi.object({
     "string.empty": "Tanggal tidak boleh kosong",
   }),
 });
-const getReportValidation = Joi.object({
-  date: Joi.string().required().messages({
-    "any.required": "Tanggal tidak boleh kosong",
-    "string.empty": "Tanggal tidak boleh kosong",
-  }),
+const getExcelValidation = Joi.object({
+  search: Joi.string().optional().allow(""),
+  page: Joi.number().integer(),
+  pageSize: Joi.number().integer(),
 });
 
-export { getReportValidation, createReportValidation };
+export { getExcelValidation, createReportValidation };

@@ -1,15 +1,11 @@
 import prisma from "../application/database.js";
 import axios from "axios";
 import {
-  getReportValidation,
+  getExcelValidation,
   createReportValidation,
 } from "../validation/report-validation.js";
 
 const getReport = async (date) => {
-  // Validasi input
-  const { error } = getReportValidation.validate(date);
-  if (error) throw new Error(error.details[0].message);
-
   const [year, month] = date["date"].split("-");
 
   const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1;
@@ -35,6 +31,31 @@ const getReport = async (date) => {
   return parkingData;
 };
 
+const getExcel = async (data) => {
+  const { error } = getExcelValidation.validate(data);
+  if (error) throw new Error(error.details[0].message);
+  const { search, page, pageSize } = data;
+  try {
+    const where = search
+      ? { fileName: { contains: search, mode: "insensitive" } }
+      : {};
+
+    // Hitung total data
+    const total = await prisma.data_excel.count({ where });
+
+    // Ambil data dengan paginasi
+    const data = await prisma.data_excel.findMany({
+      where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return { data, total };
+  } catch (error) {
+    throw new Error("Error fetching parking data");
+  }
+};
+
 const createReport = async (data) => {
   // Validasi input
   const { error } = createReportValidation.validate(data);
@@ -49,7 +70,7 @@ const createReport = async (data) => {
     throw new Error("Tidak ada data yang ditemukan untuk bulan tersebut");
   }
   // Kirim data ke API Python
-  const response = await axios.post("http://localhost:5000/generate-report", {
+  const response = await axios.post("http://localhost:5000/exportExcel", {
     fileName,
     data: parkingData,
   });
@@ -63,4 +84,4 @@ const createReport = async (data) => {
   });
 };
 
-export default { createReport, getReport };
+export default { createReport, getExcel };

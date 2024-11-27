@@ -12,7 +12,12 @@ const generateReport = async (req, res, next) => {
     }
   } else if (req.method === "GET") {
     try {
-      const data = await reportService.getReport(req.query);
+      const params = {
+        search: req.query.search || "",
+        page: req.query.page ? parseInt(req.query.page) : 1,
+        pageSize: req.query.pageSize ? parseInt(req.query.pageSize) : 8,
+      };
+      const data = await reportService.getExcel(params);
       return res.status(200).json({
         message: "Report berhasil diambil",
         data,
