@@ -6,6 +6,7 @@ import webhookController from '../controller/webhook-controller.js';
 import monitoringController from '../controller/monitoring-controller.js';
 import manualInputController from '../controller/manual-input-controller.js';
 import errorRecordsController from '../controller/error-records-controller.js';
+import userController from "../controller/user-controller.js";
 
 const iotRouter = new express.Router();
 
@@ -27,6 +28,10 @@ iotRouter.post('/api/manual-input/update', manualInputController.updateRecord); 
 
 // Error Records IoT Router
 iotRouter.get('/api/error-records', errorRecordsController.fetchErrorRecords); // New route for fetching error records
+
+iotRouter.post('/api/users', userController.register);
+
+iotRouter.post('/api/users/login', userController.login);
 
 export {
   iotRouter

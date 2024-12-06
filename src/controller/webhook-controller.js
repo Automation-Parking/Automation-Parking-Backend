@@ -7,8 +7,8 @@ import axios from 'axios';
 // Function to call the IoT API to open the gate
 const openGate = async () => {
   try {
-    // Replace with IoT server's URL and endpoint
-    const iotServerUrl = 'http://192.168.29.138/gerbangKeluar'; // Example URL
+    // IoT server's URL and endpoint
+    const iotServerUrl = 'http://192.168.29.138/gerbangKeluar';
     const response = await axios.get(iotServerUrl);
     logger.info(`Gate opened:`, response.data);
   } catch (error) {
@@ -32,10 +32,10 @@ const handleWebhook = async (req, res, next) => {
     await paymentService.updatePaymentStatus(notification.order_id, notification.transaction_status);
 
     // Send a single message to the frontend based on the transaction status
-    if (notification.transaction_status === 'settlement') {
+    if (notification.transaction_status === "settlement") {
       sendToClients({ event: "THANK_YOU", message: 'Pembayaran sukses, pintu terbuka' });
-      await openGate();
       res.status(200).json({ message: 'Pembayaran sukses, pintu terbuka' });
+      await openGate();
     } else {
       res.status(200).json({ message: 'Transaksi diproses', status: notification.transaction_status });
     }

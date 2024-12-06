@@ -1,7 +1,22 @@
-// src/middleware/error-middleware.js
-const errorMiddleware = (err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ message: err.message });
-};
+import { ResponseError } from "../error/response-error.js";
 
-export { errorMiddleware };
+const errorMiddleware = async (err, req, res, next) => {
+  if (!err) {
+    next();
+    return;
+  }
+
+  if (err instanceof ResponseError) {
+    res.status(err.status).json({
+      errors: err.message
+    }).end();
+  } else {
+    res.status(500).json({
+      errors: err.message
+    }).end();
+  }
+}
+
+export {
+  errorMiddleware
+}

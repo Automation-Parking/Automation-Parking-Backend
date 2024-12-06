@@ -166,3 +166,5 @@ dist
 prisma/migrations/
 
 docs/
+
+test.http

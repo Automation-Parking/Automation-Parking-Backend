@@ -35,3 +35,10 @@ model payment {
   transactionId String @db.VarChar(100)
   status        String @db.VarChar(20)
 }
+
+model user {
+  username String    @id @db.VarChar(100)
+  password String    @db.VarChar(100)
+  name     String    @db.VarChar(100)
+  token    String?   @db.VarChar(100)
+}

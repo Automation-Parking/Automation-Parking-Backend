@@ -3,40 +3,36 @@ import prisma from '../application/database.js';
 import { logger } from '../application/logging.js';
 import { sendToClients } from '../main.js';
 import { parkInValidation, parkOutValidation } from '../validation/parking-validation.js';
+import { validate } from "../validation/validation.js";
 import paymentService from './payment-service.js';
 
-const parkIn = async (data) => {
-  const { error } = parkInValidation.validate(data);
-  if (error) throw new Error(error.details[0].message);
+const parkIn = async (request) => {
+  let parking = validate(parkInValidation, request);
 
-  let { platNomor } = data;
-  if (platNomor === null || platNomor === "null") {
-
-    platNomor = Math.random(0, 9999999999).toString();
-
+  if (parking.platNomor === null || parking.platNomor === "null") {
+    parking.platNomor = Math.random(0, 9999999999).toString();
   }
 
   const waktuMasuk = new Date();
   const parkingIn = await prisma.parking_in.create({
     data: {
-      platNomor: platNomor,
-      waktuMasuk,
+      platNomor: parking.platNomor,
+      waktuMasuk: waktuMasuk,
     },
   });
 
-  logger.info(`Car parked: ${platNomor} at ${waktuMasuk}`);
-  sendToClients({ event: "PARK_IN", message: `Car parked: ${platNomor}` });
+  logger.info(`Car parked: ${parking.platNomor} at ${waktuMasuk}`);
+  sendToClients({ event: "PARK_IN", message: `Car parked: ${parking.platNomor}` });
   return { message: 'Car parked successfully', parkingIn };
 };
 
-const parkOut = async (data) => {
-  const { error } = parkOutValidation.validate(data);
-  if (error) throw new Error(error.details[0].message);
+const parkOut = async (request) => {
+  const parking = validate(parkOutValidation, request);
 
   const waktuKeluar = new Date();
   const parkingIn = await prisma.parking_in.findFirst({
     where: {
-      platNomor: data.platNomor,
+      platNomor: parking.platNomor,
       waktuMasuk: {
         gte: new Date(new Date().setHours(0, 0, 0, 0)), // Today
       },
@@ -44,7 +40,7 @@ const parkOut = async (data) => {
   });
 
   if (!parkingIn) {
-    sendToClients({ event: "ERROR", message: `No parking record found for ${data.platNomor}.` });
+    sendToClients({ event: "ERROR", message: `No parking record found for ${parking.platNomor}.` });
     throw new Error('No parking record found for this license plate.');
   }
 
@@ -53,7 +49,7 @@ const parkOut = async (data) => {
 
   const parkingOut = await prisma.parking_out.create({
     data: {
-      platNomor: data.platNomor,
+      platNomor: parking.platNomor,
       waktuMasuk: parkingIn.waktuMasuk,
       waktuKeluar,
       totalTime: durasiJam,
@@ -66,10 +62,10 @@ const parkOut = async (data) => {
     where: { id: parkingIn.id },
   });
 
-  logger.info(`Car exited: ${data.platNomor} at ${waktuKeluar}`);
+  logger.info(`Car exited: ${parking.platNomor} at ${waktuKeluar}`);
 
   const paymentData = {
-    platNomor: data.platNomor,
+    platNomor: parking.platNomor,
     totalPrice: biayaTotal,
   };
 
@@ -77,12 +73,12 @@ const parkOut = async (data) => {
     await paymentService.createPayment(paymentData);
   } catch (paymentError) {
     logger.error(`Payment creation failed: ${paymentError.message}`);
-    sendToClients({ event: "PAYMENT_ERROR", message: `Payment failed for ${data.platNomor}.` });
+    sendToClients({ event: "PAYMENT_ERROR", message: `Payment failed for ${parking.platNomor}.` });
     throw new Error('Payment creation failed.');
   }
 
   // Send a message indicating the car has exited and the total cost
-  sendToClients({ event: "PARK_OUT", message: `Car exited: ${data.platNomor}, Total Cost: ${biayaTotal}` });
+  sendToClients({ event: "PARK_OUT", message: `Car exited: ${parking.platNomor}, Total Cost: ${biayaTotal}` });
   return { message: 'Car exited successfully', parkingOut };
 };
 
