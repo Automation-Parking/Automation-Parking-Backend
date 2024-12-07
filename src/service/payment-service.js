@@ -10,7 +10,7 @@ const createPayment = async (request) => {
   const serverKey = process.env.SERVER_KEY;
   const midtransUrl = process.env.MIDTRANS_URL;
 
-  const payment = validate(paymentValidation, request)
+  const payment = validate(paymentValidation, request);
 
   const transactionDetails = {
     payment_type: 'qris',
@@ -43,10 +43,9 @@ const createPayment = async (request) => {
     const qrCodeUrl = response.data.actions.find(action => action.name === 'generate-qr-code').url;
     logger.info(`Payment created for ${payment.platNomor}, QR Code URL: ${qrCodeUrl}`);
 
-    // Save the payment details in the database
-    await prisma.payment.create({
+    // Save the payment details in the database without platNomor
+    const createdPayment = await prisma.payment.create({
       data: {
-        platNomor: payment.platNomor,
         totalPrice: payment.totalPrice,
         transactionId: response.data.order_id,
         status: response.data.transaction_status,
@@ -54,7 +53,8 @@ const createPayment = async (request) => {
     });
 
     sendToClients({ event: "SHOW_QR", qrCodeUrl });
-    return { message: 'Payment created successfully', qrCodeUrl };
+    console.log()
+    return { message: 'Payment created successfully', qrCodeUrl, paymentId: createdPayment.id }; // Return the created payment ID
   } catch (error) {
     logger.error(`Payment creation failed: ${error.message}`);
     sendToClients({ event: "PAYMENT_ERROR", message: `Payment failed for ${payment.platNomor}.` });

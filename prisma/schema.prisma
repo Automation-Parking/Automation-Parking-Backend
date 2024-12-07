@@ -38,10 +38,10 @@ model parking_out {
   waktuMasuk  DateTime
   waktuKeluar DateTime
   totalTime   Int
-  wilayah    String  @db.VarChar(20)
-  kota_provinsi String @db.VarChar(50)
-  jenisKendaraan String @db.VarChar(20)
-  imageLink      String @db.VarChar(256)
+  wilayah    String?  @db.VarChar(20)
+  kota_provinsi String? @db.VarChar(50)
+  jenisKendaraan String? @db.VarChar(20)
+  imageLink      String? @db.VarChar(256)
   paymentId      Int 
   payment       payment @relation(fields: [paymentId], references: [id])
 }

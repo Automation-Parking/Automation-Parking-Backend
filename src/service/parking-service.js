@@ -18,6 +18,10 @@ const parkIn = async (request) => {
     data: {
       platNomor: parking.platNomor,
       waktuMasuk: waktuMasuk,
+      wilayah: parking.wilayah,
+      kota_provinsi: parking.kota_provinsi,
+      jenisKendaraan: parking.jenis_kendaraan,
+      imageLink: parking.image_link
     },
   });
 
@@ -47,39 +51,46 @@ const parkOut = async (request) => {
   const durasiJam = Math.ceil((waktuKeluar - parkingIn.waktuMasuk) / (1000 * 60 * 60));
   const biayaTotal = durasiJam * 5000; // Example price calculation
 
-  const parkingOut = await prisma.parking_out.create({
-    data: {
-      platNomor: parking.platNomor,
-      waktuMasuk: parkingIn.waktuMasuk,
-      waktuKeluar,
-      totalTime: durasiJam,
-      totalPrice: biayaTotal,
-    },
-  });
-
-  // Delete from parking_in table
-  await prisma.parking_in.delete({
-    where: { id: parkingIn.id },
-  });
-
-  logger.info(`Car exited: ${parking.platNomor} at ${waktuKeluar}`);
-
   const paymentData = {
-    platNomor: parking.platNomor,
     totalPrice: biayaTotal,
   };
 
+  let createdPayment;
   try {
-    await paymentService.createPayment(paymentData);
+    createdPayment = await paymentService.createPayment(paymentData);
+    const parkingOut = await prisma.parking_out.create({
+      data: {
+        platNomor: parking.platNomor,
+        waktuMasuk: parkingIn.waktuMasuk,
+        waktuKeluar,
+        totalTime: durasiJam,
+        wilayah: parking.wilayah,
+        kota_provinsi: parking.kota_provinsi,
+        jenisKendaraan: parking.jenis_kendaraan,
+        imageLink: parking.image_link,
+        payment: {
+          connect: { id: createdPayment.paymentId }, // Use the created payment ID
+        },
+      },
+    });
+
+    // Delete from parking_in table
+    await prisma.parking_in.delete({
+      where: { id: parkingIn.id },
+    });
+
+    logger.info(`Car exited: ${parking.platNomor} at ${waktuKeluar}`);
+
+    // Send a message indicating the car has exited and the total cost
+    sendToClients({ event: "PARK_OUT", message: `Car exited: ${parking.platNomor}, Total Cost: ${biayaTotal}` });
+    return { message: 'Car exited successfully', parkingOut };
   } catch (paymentError) {
     logger.error(`Payment creation failed: ${paymentError.message}`);
     sendToClients({ event: "PAYMENT_ERROR", message: `Payment failed for ${parking.platNomor}.` });
     throw new Error('Payment creation failed.');
   }
 
-  // Send a message indicating the car has exited and the total cost
-  sendToClients({ event: "PARK_OUT", message: `Car exited: ${parking.platNomor}, Total Cost: ${biayaTotal}` });
-  return { message: 'Car exited successfully', parkingOut };
+  // Create parking_out record
 };
 
 const processUpdatedRecord = async (updatedRecord) => {
@@ -103,11 +114,17 @@ const processUpdatedRecord = async (updatedRecord) => {
 
   const parkingOut = await prisma.parking_out.create({
     data: {
-      platNomor: updatedRecord.platNomor,
+      platNomor: parking.platNomor,
       waktuMasuk: parkingIn.waktuMasuk,
       waktuKeluar,
       totalTime: durasiJam,
-      totalPrice: biayaTotal,
+      wilayah: parking.wilayah,
+      kota_provinsi: parking.kota_provinsi,
+      jenisKendaraan: parking.jenis_kendaraan,
+      imageLink: parking.image_link,
+      payment: {
+        connect: { id: payment.id },
+      },
     },
   });
 
