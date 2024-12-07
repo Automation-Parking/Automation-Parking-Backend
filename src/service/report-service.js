@@ -65,21 +65,35 @@ const createReport = async (data) => {
 
   // Ambil data dari tabel `parking_out` yang di-join dengan tabel `payment`
   const parkingData = await getReport({ date });
-
   if (parkingData === null) {
     throw new Error("Tidak ada data yang ditemukan untuk bulan tersebut");
   }
+  const Data = parkingData.map((item) => ({
+    "Plat Nomor": item.platNomor,
+    "Jenis Kendaraan": item.jenisKendaraan,
+    "Wilayah": item.wilayah,
+    "Kota Provinsi": item.kota_provinsi,
+    "Jam Masuk": item.waktuMasuk,
+    "Jam Keluar": item.waktuKeluar,
+    "Total Jam": item.totalTime,
+    "Tagihan": item.payment.totalPrice,
+    "Kode Transaksi": item.payment.transactionId,
+    "Status Transaksi": item.payment.status,
+  }));
+  console.log(Data);
+  console.log(fileName);
   // Kirim data ke API Python
-  const response = await axios.post("http://localhost:5000/exportExcel", {
-    fileName,
-    data: parkingData,
+  const response = await axios.post("http://127.0.0.1:5000/datarecap", {
+    filename: fileName,
+    data: Data,
   });
-  const fileLink = response.data.file_link;
+  console.log(response);
+  const fileLink = response.data.data.file_link;
   // Simpan hasil ke tabel `data_excel`
   await prisma.data_excel.create({
     data: {
-      fileName,
-      fileLink,
+      fileName: fileName,
+      excelLink: fileLink,
     },
   });
 };

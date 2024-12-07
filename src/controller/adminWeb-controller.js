@@ -11,7 +11,13 @@ const getParkingOutData = async (req, res, next) => {
       kotaProvinsi: req.query.kota_provinsi || "",
       jenisKendaraan: req.query.jenisKendaraan || "",
       page: req.query.page ? parseInt(req.query.page) : 1,
-      pageSize: req.query.pageSize ? parseInt(req.query.pageSize) : 10,
+      pageSize:
+        req.query.pageSize === "all"
+          ? "all"
+          : req.query.pageSize
+          ? parseInt(req.query.pageSize)
+          : 15,
+      orderBy: req.query.orderBy || "waktuKeluar",
     };
 
     // Memanggil service untuk mendapatkan data
@@ -29,7 +35,7 @@ const getParkingOutData = async (req, res, next) => {
   }
 };
 
-const getParkingByCity = async (res, next) => {
+const getParkingByCity = async (req, res, next) => {
   try {
     const data = await adminWebService.getParkingDataByCity();
     return res.status(200).json({
@@ -42,7 +48,7 @@ const getParkingByCity = async (res, next) => {
   }
 };
 
-const getParkingByRegion = async (res, next) => {
+const getParkingByRegion = async (req, res, next) => {
   try {
     const data = await adminWebService.getParkingDataByRegion();
     return res.status(200).json({

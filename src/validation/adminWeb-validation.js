@@ -28,7 +28,8 @@ const parkingOutValidation = Joi.object({
   kotaProvinsi: Joi.string().optional().allow(""),
   jenisKendaraan: Joi.string().optional().allow(""),
   page: Joi.number().integer(),
-  pageSize: Joi.number().integer(),
+  pageSize: Joi.any().optional(),
+  orderBy: Joi.string(),
 });
 
 export { parkingOutValidation };
