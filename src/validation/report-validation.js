@@ -1,12 +1,10 @@
 import Joi from "joi";
 
 const createReportValidation = Joi.object({
-  fileName: Joi.string().required().messages({
-    "any.required": "File Name tidak boleh kosong",
-    "string.empty": "File Name tidak boleh kosong",
+  fileName: Joi.string().messages({
+    "string.empty": "File Name tidak boleh kosong 2",
   }),
-  date: Joi.string().required().messages({
-    "any.required": "Tanggal tidak boleh kosong",
+  date: Joi.string().messages({
     "string.empty": "Tanggal tidak boleh kosong",
   }),
 });

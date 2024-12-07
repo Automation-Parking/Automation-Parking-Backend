@@ -3,10 +3,12 @@ import reportService from "../service/report-service.js";
 const generateReport = async (req, res, next) => {
   if (req.method === "POST") {
     try {
-      await reportService.createReport(req.body);
-      return res.status(200).json({
-        message: "Report berhasil dibuat",
-      });
+      const params = {
+        fileName: req.body.fileName,
+        date: req.body.date,
+      };
+      await reportService.createReport(params);
+      return res.redirect("http://localhost:5173/ReportPaper/Report-Paper");
     } catch (error) {
       return next(error);
     }
