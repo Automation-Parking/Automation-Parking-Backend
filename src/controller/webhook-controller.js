@@ -8,7 +8,7 @@ import axios from 'axios';
 const openGate = async () => {
   try {
     // IoT server's URL and endpoint
-    const iotServerUrl = 'http://192.168.29.138/gerbangKeluar';
+    const iotServerUrl = 'http://192.168.43.138/gerbangKeluar';
     const response = await axios.get(iotServerUrl);
     logger.info(`Gate opened:`, response.data);
   } catch (error) {
