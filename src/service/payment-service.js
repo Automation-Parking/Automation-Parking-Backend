@@ -53,7 +53,7 @@ const createPayment = async (request) => {
       },
     });
 
-    sendToClients({ event: "SHOW_QR", qrCodeUrl });
+    sendToClients({ event: "SHOW_QR", qrCodeUrl, message: payment.totalPrice });
     console.log()
     return { message: 'Payment created successfully', qrCodeUrl, paymentId: createdPayment.id }; // Return the created payment ID
   } catch (error) {
