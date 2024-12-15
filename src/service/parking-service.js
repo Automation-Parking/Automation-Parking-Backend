@@ -80,6 +80,7 @@ const parkOut = async (request) => {
 
   try {
     createdPayment = await paymentService.createPayment(paymentData);
+    console.log(createdPayment.paymentId)
     const parkingOut = await prisma.parking_out.create({
       data: {
         platNomor: parking.platNomor,
@@ -110,7 +111,6 @@ const parkOut = async (request) => {
     });
     return { message: "Car exited successfully", parkingOut };
   } catch (paymentError) {
-    logger.error(`Payment creation failed: ${paymentError.message}`);
     sendToClients({
       event: "PAYMENT_ERROR",
       message: `Payment failed for ${parking.platNomor}.`,
@@ -156,10 +156,10 @@ const processUpdatedRecord = async (updatedRecord) => {
         waktuMasuk: parkingIn.waktuMasuk,
         waktuKeluar,
         totalTime: durasiJam,
-        wilayah: "undefined",
-        kota_provinsi: "undefined",
-        jenisKendaraan: "undefined",
-        imageLink: "undefined",
+        wilayah: parkingIn.wilayah,
+        kota_provinsi: parkingIn.kota_provinsi,
+        jenisKendaraan: parkingIn.jenisKendaraan,
+        imageLink: parkingIn.imageLink,
         payment: {
           connect: { id: createdPayment.paymentId }, // Use the created payment ID
         },

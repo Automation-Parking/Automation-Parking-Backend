@@ -83,10 +83,13 @@ const createReport = async (data) => {
   console.log(Data);
   console.log(fileName);
   // Kirim data ke API Python
-  const response = await axios.post("http://127.0.0.1:5000/datarecap", {
-    filename: fileName,
-    data: Data,
-  });
+  const response = await axios.post(
+    "https://braincore-parking-v1-49333590966.asia-southeast2.run.app/datarecap",
+    {
+      filename: fileName,
+      data: Data,
+    }
+  );
   console.log(response);
   const fileLink = response.data.data.file_link;
   // Simpan hasil ke tabel `data_excel`

@@ -8,6 +8,7 @@ import prisma from '../application/database.js';
 
 const createPayment = async (request) => {
   const serverKey = process.env.SERVER_KEY;
+  console.log("server_key", serverKey)
   const midtransUrl = process.env.MIDTRANS_URL;
 
   const payment = validate(paymentValidation, request);
@@ -38,7 +39,7 @@ const createPayment = async (request) => {
         'Content-Type': 'application/json',
         'Authorization': 'Basic ' + Buffer.from(serverKey).toString('base64')
       }
-    });
+    });``
 
     const qrCodeUrl = response.data.actions.find(action => action.name === 'generate-qr-code').url;
     logger.info(`Payment created for ${payment.platNomor}, QR Code URL: ${qrCodeUrl}`);

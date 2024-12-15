@@ -1,38 +1,36 @@
 // src/route/api.js
-import express from 'express';
-import parkingController from '../controller/parking-controller.js';
-import paymentController from '../controller/payment-controller.js';
-import webhookController from '../controller/webhook-controller.js';
-import monitoringController from '../controller/monitoring-controller.js';
-import manualInputController from '../controller/manual-input-controller.js';
-import errorRecordsController from '../controller/error-records-controller.js';
+import express from "express";
+import parkingController from "../controller/parking-controller.js";
+import paymentController from "../controller/payment-controller.js";
+import webhookController from "../controller/webhook-controller.js";
+import monitoringController from "../controller/monitoring-controller.js";
+import manualInputController from "../controller/manual-input-controller.js";
+import errorRecordsController from "../controller/error-records-controller.js";
 import userController from "../controller/user-controller.js";
 
 const iotRouter = new express.Router();
 
 // Parking IoT Router
-iotRouter.post('/api/parkir/masuk', parkingController.parkIn);
-iotRouter.post('/api/parkir/keluar', parkingController.parkOut);
+iotRouter.post("/api/parkir/masuk", parkingController.parkIn);
+iotRouter.post("/api/parkir/keluar", parkingController.parkOut);
 
 // Payment IoT Router
-iotRouter.post('/api/payment/', paymentController.createPayment);
+iotRouter.post("/api/payment/", paymentController.createPayment);
 
 // Webhook IoT Router
-iotRouter.post('/api/webhook/midtrans', webhookController.handleWebhook);
+iotRouter.post("/api/webhook/midtrans", webhookController.handleWebhook);
 
 // Monitoring IoT Router
-iotRouter.get('/api/monitoring', monitoringController.getStatus);
+iotRouter.get("/api/monitoring", monitoringController.getStatus);
 
 // Manual Input IoT Router
-iotRouter.post('/api/manual-input/update', manualInputController.updateRecord); // New route for updating records
+iotRouter.post("/api/manual-input/update", manualInputController.updateRecord); // New route for updating records
 
 // Error Records IoT Router
-iotRouter.get('/api/error-records', errorRecordsController.fetchErrorRecords); // New route for fetching error records
+iotRouter.get("/api/error-records", errorRecordsController.fetchErrorRecords); // New route for fetching error records
 
-iotRouter.post('/api/users', userController.register);
+iotRouter.post("/api/users", userController.register);
 
-iotRouter.post('/api/users/login', userController.login);
+iotRouter.post("/api/users/login", userController.login);
 
-export {
-  iotRouter
-}
+export { iotRouter };
