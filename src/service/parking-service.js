@@ -1,11 +1,14 @@
 // src/service/parking-service.js
-import prisma from '../application/database.js';
-import { logger } from '../application/logging.js';
-import { sendToClients } from '../main.js';
-import { parkInValidation, parkOutValidation } from '../validation/parking-validation.js';
+import prisma from "../application/database.js";
+import { logger } from "../application/logging.js";
+import { sendToClients } from "../main.js";
+import {
+  parkInValidation,
+  parkOutValidation,
+} from "../validation/parking-validation.js";
 import { validate } from "../validation/validation.js";
-import paymentService from './payment-service.js';
-import axios from 'axios';
+import paymentService from "./payment-service.js";
+import axios from "axios";
 
 const parkIn = async (request) => {
   let parking = validate(parkInValidation, request);
@@ -13,7 +16,7 @@ const parkIn = async (request) => {
   const openGate = async () => {
     try {
       // IoT server's URL and endpoint
-      const iotServerUrl = 'http://192.168.43.138/gerbangMasuk';
+      const iotServerUrl = "http://192.168.43.138/gerbangMasuk";
       const response = await axios.get(iotServerUrl);
       logger.info(`Gate opened:`, response.data);
     } catch (error) {
@@ -33,14 +36,17 @@ const parkIn = async (request) => {
       wilayah: parking.wilayah,
       kota_provinsi: parking.kota_provinsi,
       jenisKendaraan: parking.jenis_kendaraan,
-      imageLink: parking.image_link
+      imageLink: parking.image_link,
     },
   });
 
   logger.info(`Car parked: ${parking.platNomor} at ${waktuMasuk}`);
-  sendToClients({ event: "PARK_IN", message: `Car parked: ${parking.platNomor}` });
+  sendToClients({
+    event: "PARK_IN",
+    message: `Car parked: ${parking.platNomor}`,
+  });
   await openGate();
-  return { message: 'Car parked successfully', parkingIn };
+  return { message: "Car parked successfully", parkingIn };
 };
 
 const parkOut = async (request) => {
@@ -50,18 +56,20 @@ const parkOut = async (request) => {
   const parkingIn = await prisma.parking_in.findFirst({
     where: {
       platNomor: parking.platNomor,
-      waktuMasuk: {
-        gte: new Date(new Date().setHours(0, 0, 0, 0)), // Today
-      },
     },
   });
 
   if (!parkingIn) {
-    sendToClients({ event: "ERROR", message: `No parking record found for ${parking.platNomor}.` });
-    throw new Error('No parking record found for this license plate.');
+    sendToClients({
+      event: "ERROR",
+      message: `No parking record found for ${parking.platNomor}.`,
+    });
+    throw new Error("No parking record found for this license plate.");
   }
 
-  const durasiJam = Math.ceil((waktuKeluar - parkingIn.waktuMasuk) / (1000 * 60 * 60));
+  const durasiJam = Math.ceil(
+    (waktuKeluar - parkingIn.waktuMasuk) / (1000 * 60 * 60)
+  );
   const biayaTotal = durasiJam * 5000; // Example price calculation
 
   const paymentData = {
@@ -96,34 +104,42 @@ const parkOut = async (request) => {
     logger.info(`Car exited: ${parking.platNomor} at ${waktuKeluar}`);
 
     // Send a message indicating the car has exited and the total cost
-    sendToClients({ event: "PARK_OUT", message: `Car exited: ${parking.platNomor}, Total Cost: ${biayaTotal}` });
-    return { message: 'Car exited successfully', parkingOut };
+    sendToClients({
+      event: "PARK_OUT",
+      message: `Car exited: ${parking.platNomor}, Total Cost: ${biayaTotal}`,
+    });
+    return { message: "Car exited successfully", parkingOut };
   } catch (paymentError) {
     logger.error(`Payment creation failed: ${paymentError.message}`);
-    sendToClients({ event: "PAYMENT_ERROR", message: `Payment failed for ${parking.platNomor}.` });
-    throw new Error('Payment creation failed.');
+    sendToClients({
+      event: "PAYMENT_ERROR",
+      message: `Payment failed for ${parking.platNomor}.`,
+    });
+    throw new Error("Payment creation failed.");
   }
 };
 
 const processUpdatedRecord = async (updatedRecord) => {
   const parking = updatedRecord;
-
+  console.log(parking);
   const waktuKeluar = new Date();
   const parkingIn = await prisma.parking_in.findFirst({
     where: {
-      platNomor: updatedRecord.platNomor,
-      waktuMasuk: {
-        gte: new Date(new Date().setHours(0, 0, 0, 0)), // Today
-      },
+      platNomor: parking.platNomor,
     },
   });
 
   if (!parkingIn) {
-    sendToClients({ event: "ERROR", message: `No parking record found for ${updatedRecord.platNomor}.` });
-    throw new Error('No parking record found for this license plate.');
+    sendToClients({
+      event: "ERROR",
+      message: `No parking record found for ${updatedRecord.platNomor}.`,
+    });
+    throw new Error("No parking record found for this license plate.");
   }
 
-  const durasiJam = Math.ceil((waktuKeluar - parkingIn.waktuMasuk) / (1000 * 60 * 60));
+  const durasiJam = Math.ceil(
+    (waktuKeluar - parkingIn.waktuMasuk) / (1000 * 60 * 60)
+  );
   const biayaTotal = durasiJam * 5000; // Example price calculation
 
   const paymentData = {
@@ -140,10 +156,10 @@ const processUpdatedRecord = async (updatedRecord) => {
         waktuMasuk: parkingIn.waktuMasuk,
         waktuKeluar,
         totalTime: durasiJam,
-        wilayah: 'undefined',
-        kota_provinsi: 'undefined',
-        jenisKendaraan: 'undefined',
-        imageLink: 'undefined',
+        wilayah: "undefined",
+        kota_provinsi: "undefined",
+        jenisKendaraan: "undefined",
+        imageLink: "undefined",
         payment: {
           connect: { id: createdPayment.paymentId }, // Use the created payment ID
         },
@@ -155,15 +171,21 @@ const processUpdatedRecord = async (updatedRecord) => {
       where: { id: parkingIn.id },
     });
 
-    logger.info(`Car exited: ${updatedRecord.platNomor} at ${waktuKeluar}`);
+    logger.info(`Car exited: ${parking.platNomor} at ${waktuKeluar}`);
 
     // Send a message indicating the car has exited and the total cost
-    sendToClients({ event: "PARK_OUT", message: `Car exited: ${updatedRecord.platNomor}, Total Cost: ${biayaTotal}` });
-    return { message: 'Car exited successfully', parkingOut };
+    sendToClients({
+      event: "PARK_OUT",
+      message: `Car exited: ${parking.platNomor}, Total Cost: ${biayaTotal}`,
+    });
+    return { message: "Car exited successfully", parkingOut };
   } catch (paymentError) {
     logger.error(`Payment creation failed: ${paymentError.message}`);
-    sendToClients({ event: "PAYMENT_ERROR", message: `Payment failed for ${updatedRecord.platNomor}.` });
-    throw new Error('Payment creation failed.');
+    sendToClients({
+      event: "PAYMENT_ERROR",
+      message: `Payment failed for ${updatedRecord.platNomor}.`,
+    });
+    throw new Error("Payment creation failed.");
   }
 };
 
