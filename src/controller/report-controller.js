@@ -8,7 +8,9 @@ const generateReport = async (req, res, next) => {
         date: req.body.date,
       };
       await reportService.createReport(params);
-      return res.redirect("http://localhost:5173/ReportPaper/Report-Paper");
+      return res.status(200).json({
+        message: "Report berhasil dibuat",
+      });
     } catch (error) {
       return next(error);
     }

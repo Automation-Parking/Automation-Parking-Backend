@@ -3,6 +3,8 @@ import web from './application/web.js';
 import { logger } from './application/logging.js';
 import { WebSocket, WebSocketServer } from 'ws';
 
+const serverKey = process.env.SERVER_KEY + "_";
+console.log("server_key", serverKey)
 const PORT = 3000;
 const server = web.listen(PORT, () => {
   logger.info(`Server running at http://localhost:${PORT}`);

@@ -7,7 +7,7 @@ import { validate } from "../validation/validation.js";
 import prisma from '../application/database.js';
 
 const createPayment = async (request) => {
-  const serverKey = process.env.SERVER_KEY;
+  const serverKey = process.env.SERVER_KEY+"_";
   console.log("server_key", serverKey)
   const midtransUrl = process.env.MIDTRANS_URL;
 
