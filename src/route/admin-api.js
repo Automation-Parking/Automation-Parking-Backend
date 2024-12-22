@@ -4,7 +4,9 @@ import adminWebController from "../controller/adminWeb-controller.js";
 import reportController from "../controller/report-controller.js";
 import userController from "../controller/user-controller.js";
 import { authMiddleware } from "../middleware/auth-middleware.js";
+
 const adminRouter = new express.Router();
+adminRouter.use(authMiddleware);
 
 adminRouter.get("/api/getParkingOut", adminWebController.getParkingOutData);
 adminRouter.get("/api/getParkingByCity", adminWebController.getParkingByCity);

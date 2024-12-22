@@ -3,7 +3,11 @@ import prisma from '../application/database.js';
 import { logger } from '../application/logging.js';
 
 const fetchErrorRecords = async (req, res) => {
-  const records = await prisma.parking_in.findMany();
+  const records = await prisma.parking_in.findMany({
+    orderBy: {
+      waktuMasuk: "desc",
+    },
+  });
   logger.info(`Error records ${records}`);
 
   res.status(200).json({ records });

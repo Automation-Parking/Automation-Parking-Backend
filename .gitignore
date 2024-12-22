@@ -168,3 +168,5 @@ prisma/migrations/
 docs/
 
 test.http
+
+fe-monitoring.jsx

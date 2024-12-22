@@ -80,13 +80,19 @@ const createReport = async (data) => {
     "Kode Transaksi": item.payment.transactionId,
     "Status Transaksi": item.payment.status,
   }));
-  console.log(Data);
-  console.log(fileName);
+  console.log(`Data: ${Data}`);
+  console.log(`File name: ${fileName}`);
   // Kirim data ke API Python
-  const response = await axios.post("http://127.0.0.1:5000/datarecap", {
-    filename: fileName,
-    data: Data,
-  });
+  const response = await axios.post("https://braincore-parking-v1-49333590966.asia-southeast2.run.app/datarecap",
+    {
+      filename: fileName,
+      data: JSON.stringify(Data),
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   console.log(response);
   const fileLink = response.data.data.file_link;
   // Simpan hasil ke tabel `data_excel`
